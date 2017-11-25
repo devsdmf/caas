@@ -10,7 +10,7 @@ The main project goals consists in:
 - Provide a simple and easy-to-use JSON RESTful API as a proxy for the Correios shipping calculator web-services
 - Provide a cache layer for the results because the correios web-services are not reliable
 
-# Group Shipping
+# Group Shippingth
 
 ## Rate [/shipping/rate]
 
@@ -96,3 +96,13 @@ The *Rate* endpoint provides the interface for shipping rates calculation.
                 }
             }
         ]
+
+# Group Health Check
+
+## API Status [/health]
+
+### Checking the API status [GET]
+
++ Response 200 (application/json)
+
++ Response 503 (application/json)
