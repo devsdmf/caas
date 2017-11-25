@@ -7,5 +7,9 @@ app = Flask(__name__)
 def index():
     return "Hello, CaaS!"
 
+@app.route('/health',methods=['GET'])
+def health_check():
+    return ''
+
 if __name__ == '__main__':
     app.run(debug=True)
