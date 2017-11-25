@@ -1,80 +1,98 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: http://caasde.apiblueprint.org/
 
 # CaaS
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+CaaS (Correios as a Service) is an API, proxy and revamped implementation of the Correios shipping calculator web-services focused in availability, performance and reliability.
 
-## Questions Collection [/questions]
+The main project goals consists in:
 
-### List All Questions [GET]
+- Provide a simple and easy-to-use JSON RESTful API as a proxy for the Correios shipping calculator web-services
+- Provide a cache layer for the results because the correios web-services are not reliable
+
+# Group Shipping
+
+## Rate [/shipping/rate]
+
+The *Rate* endpoint provides the interface for shipping rates calculation.
+
+### Getting the rates for a package [POST]
+
++ Attributes
+    + origin (string) - The origin postal code
+    + destination (string) - The destination postal code
+    + contract (object) - The login and password for those who have a service contract with Correios
+        + login (string) - The login or company code
+        + password (string) - The password
+    + services (array) - The list of services that you want to get the rates for
+    + package (object) - The informations about the package
+        + format: box, cylinder, envelope (enum)
+        + height (number) - The package height
+        + width (number) - The package width
+        + length (number) - The package length
+        + diameter (number) - The package diameter (only for cylinder objects)
+        + weight (number) - The package weight (in case of envelope the max allowed value is 1)
+    + additional_services (object) - The additional services offered by Correios
+        + in_person (boolean) - Delivery just to the recipient person
+        + declared_value (number) - The package value, the minimum value allowed is 18 or 0 if don't want to declare the value of the package
+        + delivery_notification (boolean) - Notification when the package is delivered
+
++ Request (application/json)
+
+
+        {
+            "origin": "05311900",
+            "destination": "36420000",
+            "contract": {
+                "login": "123456",
+                "password": "123abc"
+            },
+            "services": [
+                "41106",
+                "40010"
+            ],
+            "package": {
+                "format": "box",
+                "height": 10.0,
+                "width": 10.0,
+                "length": 10.0,
+                "diameter": 0.0,
+                "weight": 1.24
+            },
+            "aditional_services": {
+                "in_person": true,
+                "declared_value": 0,
+                "delivery_notification": false
+            }
+        }
 
 + Response 200 (application/json)
 
         [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
+                "service": "41106",
+                "days": 6,
+                "price": 25.7,
+                "amounts": {
+                    "shipping": 25.7,
+                    "in_person": 0.0,
+                    "declared_value": 0.0,
+                    "delivery_notification": 0.0
+                }
+            },
+            {
+                "service": "40010",
+                "days": 0,
+                "price": 0.0,
+                "amounts": {
+                    "shipping": 0.0,
+                    "in_person": 0.0,
+                    "declared_value": 0.0,
+                    "delivery_notification": 0.0
+                },
+                "error": {
+                    "code": "008",
+                    "message": "Serviço indisponível para o trecho informado"
+                }
             }
         ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
-
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
