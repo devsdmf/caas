@@ -11,15 +11,23 @@ def apply_default_headers(res):
     res.headers['Server'] = 'CaaS.Server'
     return res
 
-# added default entrypoint
+# setting up default routes
 @app.route('/')
 def index():
     return json.jsonify({"hello": "caas"})
 
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(json.jsonify({"error": "Resource not found"}),404)
+
 # health check endpoint
-@app.route('/health',methods=['GET'])
+@app.route('/health', methods=['GET'])
 def health_check():
     return ''
+
+@app.route('/shipping/rate', methods=['POST'])
+def create_shipping_rate():
+    pass
 
 # app run
 if __name__ == '__main__':
